@@ -1,11 +1,11 @@
 import RegisterLayout from "../components/register/RegisterLayout";
-import RegisterSidebar from "../components/register/RegisterSidebar";
+import InfoCard from "../components/register/InfoCard";
 import RegisterForm from "../components/register/RegisterForm";
 
 function Register() {
   return (
     <RegisterLayout>
-      <RegisterSidebar />
+      <InfoCard />
       <RegisterForm />
     </RegisterLayout>
   );
