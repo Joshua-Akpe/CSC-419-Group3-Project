@@ -1,10 +1,13 @@
 from datetime import datetime, timedelta
-from jose import jwt
-from jose import JWTError
+from jose import jwt, JWTError
+from app.core.config import SECRET_KEY  # Import from config
 
-SECRET_KEY = "CHANGE_ME"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
+
+# Ensure SECRET_KEY exists
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY is not set in environment variables")
 
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
