@@ -9,10 +9,10 @@ class Product(SQLModel, table=True):
     sku: str=Field(index=True, unique=True)
     name: str
     category: str
-    description: str
+    description: Optional[str] = None
     current_stock: int
     reorder_level: int
     unit_price: Decimal
     bin_location: str
 
-    supplier_id: int = Field(foreign_key="suppliers.id")
+    supplier_id: int = Field(foreign_key="suppliers.id", ondelete="CASCADE")

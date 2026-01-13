@@ -3,7 +3,7 @@
   "configurations": [
     {
       "name": "FastAPI (.venv)",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "uvicorn",
       "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe",

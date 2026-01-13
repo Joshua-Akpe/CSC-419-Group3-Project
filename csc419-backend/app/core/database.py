@@ -1,7 +1,9 @@
 from sqlmodel import SQLModel, create_engine, Session
-import os
+from app.core.config import DATABASE_URL  # Import from config instead of hardcoding
 
-DATABASE_URL = "postgresql://postgres:josh@localhost:5432/csc419"
+# Ensure DATABASE_URL is not None to avoid runtime errors if .env is missing
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL is not set in environment variables.")
 
 engine = create_engine(DATABASE_URL, echo=True)
 

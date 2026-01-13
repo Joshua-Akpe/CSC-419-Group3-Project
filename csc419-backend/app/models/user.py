@@ -16,4 +16,4 @@ class User(SQLModel, table = True):
     email: str = Field(index=True, unique=True)
     pass_hash: str
     role: UserRole
-    created_at: Optional[datetime] = Field(default=None)
+    created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)

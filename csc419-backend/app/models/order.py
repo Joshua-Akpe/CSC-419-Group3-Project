@@ -18,8 +18,8 @@ class Order(SQLModel, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
     type: OrderType
-    status: OrderStatus
+    status: Optional[OrderStatus] = Field(default=OrderStatus.pending)
     total_amount: Decimal
 
-    created_by: int = Field(foreign_key="users.id")
-    date_created: Optional[datetime] = Field(default=None)
+    created_by: int = Field(foreign_key="users.id", ondelete="CASCADE")
+    date_created: datetime = Field(default_factory=datetime.utcnow)

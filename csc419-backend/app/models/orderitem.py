@@ -9,5 +9,5 @@ class OrderItem(SQLModel, table=True):
     quantity: int
     price_at_transaction: Decimal
 
-    order_id: int = Field(foreign_key="orders.id")
-    product_id: int = Field(foreign_key="products.id")
+    order_id: int = Field(foreign_key="orders.id", ondelete="CASCADE")
+    product_id: int = Field(foreign_key="products.id", ondelete="CASCADE")
