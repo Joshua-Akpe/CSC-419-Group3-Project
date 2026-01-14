@@ -2,11 +2,11 @@ import StepCard from "./StepCard";
 
 const steps = [
   { id: 1, title: "Sign up your account" },
-  { id: 2, title: "Set up your workspace" },
-  { id: 3, title: "Set up your profile" },
+  { id: 2, title: "Set up your profile" },
+  { id: 3, title: "Set up your workspace" },
 ];
 
- function InfoCard({ activeStep = 1 }) {
+function InfoCard({ activeStep = 1 }) {
   return (
     <div className="hidden lg:block bg-[#02063E] rounded-3xl px-8 pt-24 pb-16 text-white self-start shadow-xl md:max-w-[420px] lg:max-w-none">
       {/* Header row */}

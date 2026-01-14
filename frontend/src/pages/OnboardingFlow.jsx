@@ -1,0 +1,118 @@
+import { useState } from "react";
+import InfoCard from "../components/register/InfoCard";
+import RegisterForm from "../components/register/RegisterForm";
+import ConfirmProfileStep from "../components/register/ConfirmProfileStep";
+import WorkspaceStep from "../components/register/WorkspaceStep";
+import { createUser } from "../api/users";
+
+export default function OnboardingFlow() {
+  const [activeStep, setActiveStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    role: "",
+    profileImage: null,
+    workspace: null,
+  });
+
+  // Add this function in OnboardingFlow.jsx
+async function handleFinalSubmit() {
+  setIsLoading(true);
+  setError("");
+
+  try {
+    // You can make a final API call here if needed to update workspace
+    // Or just proceed to the dashboard/success page
+    
+    console.log("Final submission data:", formData);
+    
+    // TODO: Navigate to dashboard or success page
+    alert("Registration completed successfully!");
+    
+  } catch (err) {
+    setError("Failed to complete registration. Please try again.");
+    console.error("Final submission error:", err);
+  } finally {
+    setIsLoading(false);
+  }
+}
+
+
+
+  // STEP 1 — Register user
+  async function handleRegister() {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const payload = {
+        full_name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        password: formData.password,
+        role: "staff",
+      };
+
+      await createUser(payload);
+
+      setActiveStep(2);
+    } catch (err) {
+  const errorMessage = err.message || "Registration failed. Please check your details and try again.";
+  setError(errorMessage);
+  console.error("Registration error:", err);
+} finally {
+      setIsLoading(false);
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex">
+      {/* Left info card (desktop only) */}
+      <div className="hidden lg:block lg:w-[45%] xl:w-[50%] p-8 lg:p-12">
+        <InfoCard activeStep={activeStep} />
+      </div>
+
+      {/* Right side - Form content */}
+      <div className="flex-1 flex items-center justify-center bg-white p-6 lg:p-12">
+        <div className="w-full max-w-xl">
+          {/* STEP 1 */}
+          {activeStep === 1 && (
+            <RegisterForm
+              formData={formData}
+              setFormData={setFormData}
+              onContinue={handleRegister}
+              isLoading={isLoading}
+              error={error}
+            />
+          )}
+
+          {/* STEP 2 */}
+          {activeStep === 2 && (
+            <ConfirmProfileStep
+              formData={formData}
+              setFormData={setFormData}
+              onBack={() => setActiveStep(1)}
+              onContinue={() => setActiveStep(3)}
+            />
+          )}
+
+          {/* STEP 3 */}
+          
+{activeStep === 3 && (
+  <WorkspaceStep
+    formData={formData}
+    setFormData={setFormData}
+    onBack={() => setActiveStep(2)}
+    onSubmit={handleFinalSubmit}
+    isLoading={isLoading}
+  />
+)}
+        </div>
+      </div>
+    </div>
+  );
+}

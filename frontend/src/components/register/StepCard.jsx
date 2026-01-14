@@ -17,7 +17,7 @@ export default function StepCard({ step, isActive }) {
         {/* Step number */}
         <span
           className={`
-            w-8 h-8 w-sm-4 flex items-center justify-center rounded-full text-sm font-medium
+            w-8 h-8 w-sm-4y flex items-center justify-center rounded-full text-sm font-medium
             bg-[#02063E] text-white
           `}
         >

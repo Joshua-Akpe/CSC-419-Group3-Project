@@ -1,7 +1,7 @@
-import Register from "./pages/Register";
+import OnboardingFlow from "./pages/OnboardingFlow";
 
 function App() {
-  return <Register />;
+  return <OnboardingFlow />;
 }
 
 export default App;

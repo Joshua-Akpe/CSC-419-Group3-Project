@@ -2,8 +2,8 @@ import StepCard from "./StepCard";
 
 const steps = [
   { id: 1, title: "Sign up your account" },
-  { id: 2, title: "Set up your workspace" },
-  { id: 3, title: "Set up your profile" },
+  { id: 2, title: "Set up your profile" },
+  { id: 3, title: "Set up your workspace" },
 ];
 
 export default function MobileSteps({ activeStep = 1 }) {
