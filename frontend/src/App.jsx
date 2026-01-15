@@ -1,36 +1,47 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import OnboardingFlow from "./pages/OnboardingFlow";
 import StaffDashboard from "./pages/StaffDashboard";
+import Dashboard from "./pages/warehouse/Dashboard";
 import ProductPage from "./pages/warehouse/productPage";
 import OrderSummary from "./pages/warehouse/orderSummary";
 import Pickup from "./pages/warehouse/pickup";
+import AdminDashboard from "./pages/admin/adminDashboard";
+import StoresRegisters from "./pages/admin/StoresRegisters";
+import UserRoles from "./pages/admin/UserRoles";
+import ProductsCategories from "./pages/admin/ProductsCategories";
+import Reports from "./pages/admin/Reports";
+import Settings from "./pages/admin/Settings";
 import { CartProvider } from "./context/CartContext";
 import SignIn from "./pages/SignIn";
 
-const router = createBrowserRouter(
-  createRoutesFromElements(
-  <>
-    <Route path="/" element={<Dashboard />} />
-    <Route path="/products" element={<ProductPage />} />
-    <Route path="/order-summary" element={<OrderSummary />} />
-    <Route path="/pickup" element={<Pickup />} />
-  </>
-  )
-)
-
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/register" replace />} />
-        <Route path="/register" element={<OnboardingFlow />} />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/dashboard" element={<StaffDashboard />} />
+    <CartProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Navigate to="/register" replace />} />
+          <Route path="/register" element={<OnboardingFlow />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/dashboard" element={<StaffDashboard />} />
 
-
-        <Route path="*" element={<Navigate to="/signin" replace />} />
-      </Routes>
-    </BrowserRouter>
+          <Route path="*" element={<Navigate to="/signin" replace />} />
+          
+          {/* Warehouse Routes */}
+          <Route path="/staff/dashboard" element={<Dashboard />} />
+          <Route path="/staff/products" element={<ProductPage />} />
+          <Route path="/staff/order-summary" element={<OrderSummary />} />
+          <Route path="/staff/pickup" element={<Pickup />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/stores" element={<StoresRegisters />} />
+          <Route path="/admin/users" element={<UserRoles />} />
+          <Route path="/admin/products" element={<ProductsCategories />} />
+          <Route path="/admin/reports" element={<Reports />} />
+          <Route path="/admin/settings" element={<Settings />} />
+        </Routes>
+      </BrowserRouter>
+    </CartProvider>
   );
 }
 
