@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import logo from "../../assets/Group1.png";
 import MobileSteps from "./MobileSteps";
 import { FaArrowRight } from "react-icons/fa";
@@ -99,9 +100,9 @@ function RegisterForm() {
         {/* Footer */}
         <p className="text-sm text-gray-500 mt-6 text-center">
           Already have an account?{" "}
-          <a href="#" className="text-[#02063E] font-medium hover:underline">
+          <Link to="/signin" className="text-[#02063E] font-medium hover:underline">
             Sign in
-          </a>
+          </Link>
         </p>
 
         
