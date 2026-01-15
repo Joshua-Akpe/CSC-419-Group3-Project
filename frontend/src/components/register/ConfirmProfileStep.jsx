@@ -66,15 +66,16 @@ export default function ConfirmProfileStep({ formData, setFormData, onBack, onCo
           <div>
             <p className="font-semibold mb-1">Role:</p>
             <select
-              value={formData.role}
-              onChange={handleRoleChange}
-              className="w-full border rounded-lg px-3 py-2"
-            >
-              <option value="">Select role</option>
-              <option value="Admin">Admin</option>
-              <option value="Staff">Staff</option>
-              <option value="Manager">Manager</option>
-            </select>
+  value={formData.role}
+  onChange={handleRoleChange}
+  className="w-full border-2 border-[#02063E] rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#02063E]"
+  required
+>
+  <option value="">Select role</option>
+  <option value="Manager">Manager</option>
+  <option value="Staff">Staff</option>
+  <option value="Admin">Admin</option>
+</select>
           </div>
         </div>
 

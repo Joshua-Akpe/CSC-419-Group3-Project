@@ -43,9 +43,18 @@ async function handleFinalSubmit() {
     saveUserAfterRegistration(userData);
     
     console.log("Saved user data:", userData);
+    console.log("User role:", formData.role);
     
-    // Navigate to dashboard
-    navigate("/dashboard");
+    // Navigate based on role
+    const userRole = formData.role?.toLowerCase();
+    
+    if (userRole === "manager" || userRole === "admin") {
+      console.log("Navigating to manager dashboard");
+      navigate("/manager-dashboard");
+    } else {
+      console.log("Navigating to staff dashboard");
+      navigate("/dashboard");
+    }
     
   } catch (err) {
     setError("Failed to complete registration. Please try again.");
@@ -54,7 +63,6 @@ async function handleFinalSubmit() {
     setIsLoading(false);
   }
 }
-
  
   async function handleRegister() {
     setIsLoading(true);
