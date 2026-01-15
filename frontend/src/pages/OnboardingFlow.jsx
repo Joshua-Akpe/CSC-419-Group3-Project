@@ -5,10 +5,12 @@ import ConfirmProfileStep from "../components/register/ConfirmProfileStep";
 import WorkspaceStep from "../components/register/WorkspaceStep";
 import { createUser } from "../api/users";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function OnboardingFlow() {
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(1);
+  const { saveUserAfterRegistration } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -30,12 +32,20 @@ async function handleFinalSubmit() {
   try {
     console.log("Final submission data:", formData);
     
-    // Navigate to dashboard based on role
-    if (formData.role === "Staff" || formData.role === "staff") {
-      navigate("/dashboard");
-    } else {
-      navigate("/dashboard");
-    }
+    // Save user data to context
+    const userData = {
+      full_name: `${formData.firstName} ${formData.lastName}`,
+      email: formData.email,
+      role: formData.role,
+      workspace: formData.workspace
+    };
+    
+    saveUserAfterRegistration(userData);
+    
+    console.log("Saved user data:", userData);
+    
+    // Navigate to dashboard
+    navigate("/dashboard");
     
   } catch (err) {
     setError("Failed to complete registration. Please try again.");
@@ -44,8 +54,6 @@ async function handleFinalSubmit() {
     setIsLoading(false);
   }
 }
-
-
 
   // STEP 1 — Register user
   async function handleRegister() {
