@@ -3,7 +3,7 @@ from sqlmodel import Session, select
 from app.core.database import get_session
 from app.models.product import Product
 from app.schemas.product import ProductCreate, ProductRead
-from app.dependencies.auth import require_admin_or_manager, require_admin
+from app.dependencies.auth import require_admin_or_manager, require_admin, get_current_user
 from typing import List
 from app.services.product import get_low_stock_products, search_products
 
@@ -14,7 +14,10 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=list[ProductRead])
-def read_products(session: Session = Depends(get_session)):
+def read_products(
+    session: Session = Depends(get_session),
+    current_user = Depends(get_current_user),
+    ):
     return session.exec(select(Product)).all()
 
 
@@ -22,7 +25,7 @@ def read_products(session: Session = Depends(get_session)):
 def search_for_products(
     query: str = Query(..., min_length=1),
     session: Session = Depends(get_session),
-    current_user=Depends(require_admin_or_manager),
+    current_user=Depends(get_current_user),
 ):
     return search_products(session, query)
 
@@ -30,7 +33,7 @@ def search_for_products(
 @router.get("/low-stock", response_model=List[ProductRead])
 def low_stock_products(
     session: Session = Depends(get_session),
-    current_user=Depends(require_admin_or_manager),
+    current_user=Depends(get_current_user),
 ):
     return get_low_stock_products(session)
 
@@ -56,7 +59,8 @@ def create_product(
 @router.get("/{product_id}", response_model=ProductRead)
 def get_product(
     product_id: int,
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    current_user = Depends(get_current_user)
 ):
     product = session.get(Product, product_id)
     if not product:
