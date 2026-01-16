@@ -100,7 +100,7 @@ def update_product(
 @router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_product(product_id: int, db: Session = Depends(get_session), current_user = Depends(require_admin)):
     # 1. Fetch the product
-    product = db.query(models.Product).filter(models.Product.id == product_id).first()
+    product = db.query(models.product).filter(models.product.id == product_id).first()
     
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
