@@ -4,10 +4,13 @@ from datetime import datetime
 from enum import Enum
 
 class UserRole(str, Enum):
-    admin = "admin" or "Admin"
-    manager = "manager" or "Manager"
-    staff = "staff" or "Staff"
-
+    admin = "admin"
+    Admin = "Admin"
+    manager = "manager"
+    Manager = "Manager"
+    staff = "staff"
+    Staff = "Staff"
+    
 class User(SQLModel, table = True):
     __tablename__ = "users"
 
