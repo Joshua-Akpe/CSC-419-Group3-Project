@@ -1,7 +1,11 @@
+import stat
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
+from app import models
 from app.core.database import get_session
+from sqlalchemy.orm import Session
 from app.models.product import Product
+from app.routers.auth import get_me
 from app.schemas.product import ProductCreate, ProductRead
 from app.dependencies.auth import require_admin_or_manager, require_admin, get_current_user
 from typing import List
@@ -90,15 +94,23 @@ def update_product(
 
 
 
-@router.delete("/{product_id}", status_code=204)
-def delete_product(
-    id: int,
-    session: Session = Depends(get_session),
-    current_user=Depends(require_admin_or_manager)
-):
-    product = session.get(Product, id)
+@router.delete("/{product_id}", status_code=stat.HTTP_204_NO_CONTENT)
+def delete_product(product_id: int, db: Session = Depends(get_me)):
+    # 1. Fetch the product
+    product = db.query(models.Product).filter(models.Product.id == product_id).first()
+    
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-    
-    session.delete(product)
-    session.commit()
+
+    try:
+        # 2. Attempt deletion
+        db.delete(product)
+        db.commit()
+        return None
+    except Exception:
+        # 3. Handle the foreign key conflict
+        db.rollback()
+        raise HTTPException(
+            status_code=stat.HTTP_400_BAD_REQUEST, 
+            detail="Cannot delete product. It is currently linked to existing order items. Remove those first."
+        )
