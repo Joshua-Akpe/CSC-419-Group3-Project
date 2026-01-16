@@ -274,9 +274,12 @@ export default function ManagerDashboard() {
         <div className="p-4 md:p-6 lg:p-8">
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-6 md:mb-8">
-            <button className="bg-[#02063E] text-white px-6 md:px-8 py-2.5 md:py-3 rounded-lg text-sm md:text-base font-semibold hover:bg-[#03074d] transition-colors">
-              Receive Item
-            </button>
+            <a 
+                href="/receive-items"
+                className="bg-[#02063E] text-white px-6 md:px-8 py-2.5 md:py-3 rounded-lg text-sm md:text-base font-semibold hover:bg-[#03074d] transition-colors inline-block text-center"
+            >
+                    Receive Item
+            </a>
             <button className="bg-[#02063E] text-white px-6 md:px-8 py-2.5 md:py-3 rounded-lg text-sm md:text-base font-semibold hover:bg-[#03074d] transition-colors">
               Scan Barcode
             </button>

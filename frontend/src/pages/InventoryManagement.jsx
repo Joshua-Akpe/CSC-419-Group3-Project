@@ -8,6 +8,8 @@ export default function InventoryManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -15,12 +17,11 @@ export default function InventoryManagement() {
   const { user } = useAuth();
 
   const displayUser = {
-    name: user?.full_name || "Manager",
+    name: user?.full_name || user?.email?.split('@')[0] || "Manager",
     role: user?.role || "Manager",
     email: user?.email || "manager@example.com"
   };
 
-  // Form state for new product
   const [newProduct, setNewProduct] = useState({
     sku: "",
     name: "",
@@ -33,7 +34,6 @@ export default function InventoryManagement() {
     supplier_id: 1
   });
 
-  // Fetch products on mount
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -57,9 +57,8 @@ export default function InventoryManagement() {
     setError("");
 
     try {
-      await api.post("/products", newProduct);
+      await api.post("/products/", newProduct);
       
-      // Reset form
       setNewProduct({
         sku: "",
         name: "",
@@ -73,13 +72,65 @@ export default function InventoryManagement() {
       });
       
       setShowAddModal(false);
-      fetchProducts(); // Refresh the list
+      fetchProducts();
     } catch (error) {
       console.error("Failed to add product:", error);
       setError(error.response?.data?.detail || "Failed to add product");
     } finally {
       setIsLoading(false);
     }
+  }
+
+  async function handleEditProduct(e) {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    try {
+      // Only send the fields that should be updated, excluding id and other metadata
+      const updatePayload = {
+        sku: selectedProduct.sku,
+        name: selectedProduct.name,
+        category: selectedProduct.category,
+        description: selectedProduct.description,
+        current_stock: parseInt(selectedProduct.current_stock),
+        reorder_level: parseInt(selectedProduct.reorder_level),
+        unit_price: parseFloat(selectedProduct.unit_price),
+        bin_location: selectedProduct.bin_location,
+        supplier_id: parseInt(selectedProduct.supplier_id)
+      };
+
+      await api.patch(`/products/${selectedProduct.id}`, updatePayload);
+      
+      setShowEditModal(false);
+      setSelectedProduct(null);
+      fetchProducts();
+    } catch (error) {
+      console.error("Failed to update product:", error);
+      console.error("Error response:", error.response?.data);
+      setError(error.response?.data?.detail || "Failed to update product");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleDeleteProduct(productId) {
+    if (!window.confirm("Are you sure you want to delete this product?")) {
+      return;
+    }
+
+    try {
+      await api.delete(`/products/${productId}`);
+      fetchProducts();
+    } catch (error) {
+      console.error("Failed to delete product:", error);
+      alert(error.response?.data?.detail || "Failed to delete product");
+    }
+  }
+
+  function openEditModal(product) {
+    setSelectedProduct({...product});
+    setShowEditModal(true);
   }
 
   const filteredProducts = products.filter(product =>
@@ -90,15 +141,13 @@ export default function InventoryManagement() {
 
   return (
     <div className="min-h-screen flex bg-gray-50">
-      {/* Mobile Overlay */}
       {isSidebarOpen && (
         <div 
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
-        ></div>
+        />
       )}
 
-      {/* Sidebar */}
       <aside className={`
         fixed lg:static inset-y-0 left-0 z-50
         w-64 bg-[#02063E] text-white flex flex-col
@@ -146,7 +195,7 @@ export default function InventoryManagement() {
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
               <span className="text-[#02063E] font-bold text-lg">
-                {displayUser.name.charAt(0)}
+                {displayUser.name.charAt(0).toUpperCase()}
               </span>
             </div>
             <div className="flex-1 min-w-0">
@@ -158,9 +207,7 @@ export default function InventoryManagement() {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 w-full lg:w-auto">
-        {/* Header */}
         <header className="bg-white border-b border-gray-200 px-4 md:px-8 py-4">
           <div className="flex items-center justify-between gap-4">
             <button
@@ -186,7 +233,7 @@ export default function InventoryManagement() {
             <div className="flex items-center gap-3 md:gap-6">
               <button className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
                 <FaBell className="text-xl" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
               </button>
               <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                 <FaCog className="text-xl" />
@@ -195,9 +242,7 @@ export default function InventoryManagement() {
           </div>
         </header>
 
-        {/* Content */}
         <div className="p-4 md:p-6 lg:p-8">
-          {/* Header with Add Button */}
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl md:text-3xl font-bold">Inventory Management</h1>
             <button
@@ -209,14 +254,12 @@ export default function InventoryManagement() {
             </button>
           </div>
 
-          {/* Error Message */}
           {error && (
             <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
               {error}
             </div>
           )}
 
-          {/* Products Table */}
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -257,11 +300,11 @@ export default function InventoryManagement() {
                           {product.category}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span className={`${
+                          <span className={
                             product.current_stock <= product.reorder_level
                               ? 'text-red-600 font-semibold'
                               : 'text-gray-900'
-                          }`}>
+                          }>
                             {product.current_stock}
                           </span>
                         </td>
@@ -274,10 +317,16 @@ export default function InventoryManagement() {
                           {product.bin_location}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button className="text-blue-600 hover:text-blue-900 mr-3">
+                          <button 
+                            onClick={() => openEditModal(product)}
+                            className="text-blue-600 hover:text-blue-900 mr-3"
+                          >
                             <FaEdit />
                           </button>
-                          <button className="text-red-600 hover:text-red-900">
+                          <button 
+                            onClick={() => handleDeleteProduct(product.id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
                             <FaTrash />
                           </button>
                         </td>
@@ -291,168 +340,175 @@ export default function InventoryManagement() {
         </div>
       </main>
 
-      {/* Add Product Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">Add New Product</h2>
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <FaTimes className="text-xl" />
-              </button>
+        <ProductModal
+          title="Add New Product"
+          product={newProduct}
+          setProduct={setNewProduct}
+          onSubmit={handleAddProduct}
+          onClose={() => setShowAddModal(false)}
+          isLoading={isLoading}
+          submitText="Add Product"
+        />
+      )}
+
+      {showEditModal && selectedProduct && (
+        <ProductModal
+          title="Edit Product"
+          product={selectedProduct}
+          setProduct={setSelectedProduct}
+          onSubmit={handleEditProduct}
+          onClose={() => {
+            setShowEditModal(false);
+            setSelectedProduct(null);
+          }}
+          isLoading={isLoading}
+          submitText="Update Product"
+        />
+      )}
+    </div>
+  );
+}
+
+function ProductModal({ title, product, setProduct, onSubmit, onClose, isLoading, submitText }) {
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold">{title}</h2>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <FaTimes className="text-xl" />
+          </button>
+        </div>
+
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">SKU *</label>
+              <input
+                type="text"
+                value={product.sku}
+                onChange={(e) => setProduct(prev => ({ ...prev, sku: e.target.value }))}
+                className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#02063E]"
+                required
+              />
             </div>
 
-            <form onSubmit={handleAddProduct} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    SKU *
-                  </label>
-                  <input
-                    type="text"
-                    value={newProduct.sku}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, sku: e.target.value }))}
-                    className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#02063E]"
-                    required
-                  />
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Product Name *</label>
+              <input
+                type="text"
+                value={product.name}
+                onChange={(e) => setProduct(prev => ({ ...prev, name: e.target.value }))}
+                className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#02063E]"
+                required
+              />
+            </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Product Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={newProduct.name}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#02063E]"
-                    required
-                  />
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
+              <input
+                type="text"
+                value={product.category}
+                onChange={(e) => setProduct(prev => ({ ...prev, category: e.target.value }))}
+                className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#02063E]"
+                required
+              />
+            </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Category *
-                  </label>
-                  <input
-                    type="text"
-                    value={newProduct.category}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, category: e.target.value }))}
-                    className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#02063E]"
-                    required
-                  />
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Bin Location *</label>
+              <input
+                type="text"
+                value={product.bin_location}
+                onChange={(e) => setProduct(prev => ({ ...prev, bin_location: e.target.value }))}
+                className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#02063E]"
+                required
+              />
+            </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Bin Location *
-                  </label>
-                  <input
-                    type="text"
-                    value={newProduct.bin_location}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, bin_location: e.target.value }))}
-                    className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#02063E]"
-                    required
-                  />
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Current Stock *</label>
+              <input
+                type="number"
+                value={product.current_stock}
+                onChange={(e) => setProduct(prev => ({ ...prev, current_stock: parseInt(e.target.value) || 0 }))}
+                className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#02063E]"
+                required
+                min="0"
+              />
+            </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Current Stock *
-                  </label>
-                  <input
-                    type="number"
-                    value={newProduct.current_stock}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, current_stock: parseInt(e.target.value) }))}
-                    className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#02063E]"
-                    required
-                    min="0"
-                  />
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Reorder Level *</label>
+              <input
+                type="number"
+                value={product.reorder_level}
+                onChange={(e) => setProduct(prev => ({ ...prev, reorder_level: parseInt(e.target.value) || 0 }))}
+                className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#02063E]"
+                required
+                min="0"
+              />
+            </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Reorder Level *
-                  </label>
-                  <input
-                    type="number"
-                    value={newProduct.reorder_level}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, reorder_level: parseInt(e.target.value) }))}
-                    className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#02063E]"
-                    required
-                    min="0"
-                  />
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Unit Price *</label>
+              <input
+                type="number"
+                step="0.01"
+                value={product.unit_price}
+                onChange={(e) => setProduct(prev => ({ ...prev, unit_price: parseFloat(e.target.value) || 0 }))}
+                className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#02063E]"
+                required
+                min="0"
+              />
+            </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Unit Price *
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={newProduct.unit_price}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, unit_price: parseFloat(e.target.value) }))}
-                    className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#02063E]"
-                    required
-                    min="0"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Supplier ID *
-                  </label>
-                  <input
-                    type="number"
-                    value={newProduct.supplier_id}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, supplier_id: parseInt(e.target.value) }))}
-                    className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#02063E]"
-                    required
-                    min="1"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <textarea
-                  value={newProduct.description}
-                  onChange={(e) => setNewProduct(prev => ({ ...prev, description: e.target.value }))}
-                  className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#02063E]"
-                  rows="3"
-                />
-              </div>
-
-              <div className="flex gap-4 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className={`flex-1 py-3 rounded-lg font-semibold transition-colors ${
-                    isLoading
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-[#02063E] text-white hover:bg-[#03074d]'
-                  }`}
-                >
-                  {isLoading ? "Adding..." : "Add Product"}
-                </button>
-              </div>
-            </form>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Supplier ID *</label>
+              <input
+                type="number"
+                value={product.supplier_id}
+                onChange={(e) => setProduct(prev => ({ ...prev, supplier_id: parseInt(e.target.value) || 1 }))}
+                className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#02063E]"
+                required
+                min="1"
+              />
+            </div>
           </div>
-        </div>
-      )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea
+              value={product.description || ''}
+              onChange={(e) => setProduct(prev => ({ ...prev, description: e.target.value }))}
+              className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#02063E]"
+              rows="3"
+            />
+          </div>
+
+          <div className="flex gap-4 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`flex-1 py-3 rounded-lg font-semibold transition-colors ${
+                isLoading
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-[#02063E] text-white hover:bg-[#03074d]'
+              }`}
+            >
+              {isLoading ? "Processing..." : submitText}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
