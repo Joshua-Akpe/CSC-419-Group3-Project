@@ -4,7 +4,7 @@ from app.routers import users, suppliers, products, orders, orderitems, auth
 
 app = FastAPI(debug=True)
 
-origins = ["http://localhost:5173",]
+origins = ["http://localhost:5173", "https://csc419-backend.onrender.com", "http://127.0.0.1:8000"]
 
 app.add_middleware(
     CORSMiddleware,
