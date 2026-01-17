@@ -237,15 +237,6 @@ async function handlePasswordUpdate(e) {
             </a>
 
             <a
-                href="#"
-                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/5 text-white/80 hover:text-white transition-colors"
-                onClick={() => setIsSidebarOpen(false)}
-            >
-                <span className="text-xl">🚚</span>
-                <span className="font-medium">Shipment</span>
-            </a>
-
-            <a
                 href="/settings"
                 className="flex items-center gap-3 px-4 py-3 rounded-lg bg-white/10 text-white"
                 onClick={() => setIsSidebarOpen(false)}
@@ -259,8 +250,7 @@ async function handlePasswordUpdate(e) {
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-600/20 text-white/80 hover:text-white transition-colors mt-4"
           >
-            <span className="text-xl">🚪</span>
-            <span className="font-medium">Logout</span>
+            <span className="font-medium text-red-500">LOGOUT</span>
           </button>
         </nav>
 
@@ -296,12 +286,7 @@ async function handlePasswordUpdate(e) {
 
             {/* Title */}
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate(-1)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <FaArrowLeft className="text-xl" />
-              </button>
+              
               <h1 className="text-xl md:text-2xl font-bold">Settings</h1>
             </div>
 
