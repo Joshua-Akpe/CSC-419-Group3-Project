@@ -5,9 +5,12 @@ from enum import Enum
 
 class UserRole(str, Enum):
     admin = "admin"
+    Admin = "Admin"
     manager = "manager"
+    Manager = "Manager"
     staff = "staff"
-
+    Staff = "Staff"
+    
 class User(SQLModel, table = True):
     __tablename__ = "users"
 

@@ -4,7 +4,7 @@ from app.core.database import get_session
 from app.models.orderitem import OrderItem
 from app.schemas.orderitem import OrderItemCreate, OrderItemRead
 from app.services.orderitems import calc_order_total
-from app.dependencies.auth import require_admin_or_manager, require_admin
+from app.dependencies.auth import require_admin_or_manager, require_admin, get_current_user
 
 router = APIRouter(
     prefix="/orderitems",
@@ -14,7 +14,7 @@ router = APIRouter(
 @router.get("/", response_model=list[OrderItemRead])
 def get_orderitems(
     session: Session = Depends(get_session),
-    current_user=Depends(require_admin_or_manager)
+    current_user=Depends(get_current_user)
 ):
     return session.exec(select(OrderItem)).all()
 
@@ -35,7 +35,7 @@ def create_orderitem(
 def get_orderitem(
     orderitem_id: int,
     session: Session = Depends(get_session),
-    current_user=Depends(require_admin_or_manager)
+    current_user=Depends(get_current_user)
 ):
     orderitem = session.get(OrderItem, orderitem_id)
     if not orderitem:
@@ -67,7 +67,7 @@ def update_orderitem(
 def delete_orderitem(
     orderitem_id: int,
     session: Session = Depends(get_session),
-    current_user=Depends(require_admin)
+    current_user=Depends(require_admin_or_manager)
 ):
     orderitem = session.get(OrderItem, orderitem_id)
     if not orderitem:

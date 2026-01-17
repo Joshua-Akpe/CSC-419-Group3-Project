@@ -4,8 +4,10 @@ import logo from "../assets/Group1.png";
 import { useAuth } from "../context/AuthContext";
 import { searchProducts, getLowStockProducts } from "../api/products";
 import api from "../api/client";
+import { useNavigate } from "react-router-dom";
 
 export default function ManagerDashboard() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
@@ -20,7 +22,7 @@ export default function ManagerDashboard() {
   const [showCreateOrderModal, setShowCreateOrderModal] = useState(false);
   const [products, setProducts] = useState([]);
   
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const displayUser = {
     name: user?.full_name || "Manager",
@@ -116,6 +118,12 @@ export default function ManagerDashboard() {
     }
   }
 
+  function handleLogout() {
+    logout();
+    navigate("/signin");
+    setIsSidebarOpen(false);
+  }
+
   return (
     <div className="min-h-screen flex bg-gray-50">
       {/* Mobile Overlay */}
@@ -148,6 +156,7 @@ export default function ManagerDashboard() {
 
         {/* Navigation */}
         <nav className="flex-1 p-4 space-y-2">
+          
           <a
             href="/manager-dashboard"
             className="flex items-center gap-3 px-4 py-3 rounded-lg bg-white/10 text-white"
@@ -157,6 +166,7 @@ export default function ManagerDashboard() {
             <span className="font-medium">Dashboard</span>
           </a>
 
+          
           <a
             href="/inventory-management"
             className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/5 text-white/80 hover:text-white transition-colors"
@@ -166,14 +176,17 @@ export default function ManagerDashboard() {
             <span className="font-medium">Inventory Management</span>
           </a>
 
-          <a
-            href="#"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/5 text-white/80 hover:text-white transition-colors"
-            onClick={() => setIsSidebarOpen(false)}
+          
+     
+
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-600/20 text-white/80 hover:text-white transition-colors mt-4"
           >
-            <span className="text-xl">🚚</span>
-            <span className="font-medium">Shipment</span>
-          </a>
+
+            <span className="font-medium text-red-600">Logout</span>
+          </button>
         </nav>
 
         {/* User Profile */}
@@ -263,9 +276,12 @@ export default function ManagerDashboard() {
                 <FaBell className="text-lg md:text-xl" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>
-              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <FaCog className="text-lg md:text-xl" />
-              </button>
+              <button 
+  onClick={() => navigate("/settings")}
+  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+>
+  <FaCog className="text-lg md:text-xl" />
+</button>
             </div>
           </div>
         </header>
@@ -280,9 +296,7 @@ export default function ManagerDashboard() {
             >
                     Receive Item
             </a>
-            <button className="bg-[#02063E] text-white px-6 md:px-8 py-2.5 md:py-3 rounded-lg text-sm md:text-base font-semibold hover:bg-[#03074d] transition-colors">
-              Scan Barcode
-            </button>
+            
             <button 
               onClick={() => setShowCreateOrderModal(true)}
               className="bg-[#02063E] text-white px-6 md:px-8 py-2.5 md:py-3 rounded-lg text-sm md:text-base font-semibold hover:bg-[#03074d] transition-colors"

@@ -15,6 +15,7 @@ import Settings from "./pages/admin/Settings";
 import { CartProvider } from "./context/CartContext";
 import SignIn from "./pages/SignIn";
 import ReceiveItems from "./pages/ReceiveItems";
+import Settings from "./pages/Settings";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path="/manager-dashboard" element={<ManagerDashboard />} />
           <Route path="/inventory-management" element={<InventoryManagement />} />
           <Route path="/receive-items" element={<ReceiveItems />} />
+          <Route path="/settings" element={<Settings />} />
           
           {/* Warehouse Routes */}
           <Route path="/staff/dashboard" element={<Dashboard />} />
@@ -42,6 +44,7 @@ function App() {
           <Route path="/admin/products" element={<ProductsCategories />} />
           <Route path="/admin/reports" element={<Reports />} />
           <Route path="/admin/settings" element={<Settings />} />
+         
 
           <Route path="*" element={<Navigate to="/signin" replace />} />
         </Routes>
